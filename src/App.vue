@@ -1,12 +1,16 @@
 <template>
-  <TopNav :cartItemCount="cartItemCount"/>
-  <router-view
-    :products="products"
-    :cartItems="cartItems"
-    @addToCart="addToCart"
-    @removeFromCart="removeFromCart"
-    @submitOrder="submitOrder"
-  ></router-view>
+  <div class="app-container">
+    <TopNav :cartItemCount="cartItemCount"/>
+    <div class="main-content">
+      <router-view
+        :products="products"
+        :cartItems="cartItems"
+        @addToCart="addToCart"
+        @removeFromCart="removeFromCart"
+        @submitOrder="submitOrder"
+      ></router-view>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -47,15 +51,12 @@ export default {
         })
     },
     addToCart({ productId, quantity }) {
-      // check if the product is already in the cart
       const existingCartItem = this.cartItems.find(
         item => item.product.id == productId
       )
       if (existingCartItem) {
-        // if it is, increment the quantity
         existingCartItem.quantity += quantity
       } else {
-        // if not, find the product, and add it with quantity to the cart
         const product = this.products.find(product => product.id == productId)
         this.cartItems.push({ product, quantity })
       }
@@ -64,10 +65,6 @@ export default {
       this.cartItems.splice(index, 1)
     },
     submitOrder() {
-      // get the order-service URL from an environment variable
-      // const orderServiceUrl = process.env.VUE_APP_ORDER_SERVICE_URL;
-
-      // create an order object
       const order = {
         customerId: Math.floor(Math.random() * 10000000000).toString(),
         items: this.cartItems.map(item => {
@@ -81,7 +78,6 @@ export default {
 
       console.log(JSON.stringify(order));
 
-      // call the order-service using fetch
       fetch(`/order`, {
         method: 'POST',
         headers: {
@@ -108,175 +104,227 @@ export default {
 </script>
 
 <style>
+/* --- GLOBAL VARIABLES (Best Buy Theme) --- */
+:root {
+  --primary-blue: #0046be;    /* Best Buy Blue */
+  --accent-yellow: #ffce00;   /* Best Buy Yellow */
+  --bg-color: #f0f2f5;        /* Light Gray Background */
+  --card-bg: #ffffff;
+  --text-dark: #1d252c;
+  --text-light: #555;
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- RESET & BODY --- */
 body {
-  background-image: url('@/assets/algonquin.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed; /* Keeps the background in place when scrolling */
   margin: 0;
   padding: 0;
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 120px;
-}
-
-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #0a5620;
-  color: #fff;
-  padding: 1rem;
-  margin: 0;
-}
-
-nav {
+  min-height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
 }
 
-ul {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.main-content {
+  margin-top: 80px; /* Space for fixed header */
+  padding: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-li {
-  margin: 0 1rem;
-}
-
-a {
-  color: #fff;
-  text-decoration: none;
-}
-
+/* --- BUTTONS --- */
 button {
-  padding: 10px;
-  background-color: #005f8b;
-  color: #fff;
+  background-color: var(--primary-blue);
+  color: white;
   border: none;
-  border-radius: 5px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  height: 42px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+button:hover {
+  background-color: #003da6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* --- PRODUCT GRID --- */
 .product-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
 }
 
+/* --- PRODUCT CARD --- */
 .product-card {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  margin: 1rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  border-color: rgba(0, 70, 190, 0.2);
 }
 
 .product-card img {
-  max-width: 100%;
-  margin-bottom: 1rem;
-}
-
-.product-card a {
-  text-decoration: none;
-  color: #333;
+  max-width: 80%;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 1.5rem;
 }
 
 .product-card h2 {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-dark);
+  line-height: 1.4;
 }
 
 .product-card p {
+  color: var(--text-light);
+  font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
+.product-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-blue);
+  margin-bottom: 1rem;
+  align-self: flex-start;
+}
+
 .product-controls {
+  width: 100%;
   display: flex;
   align-items: center;
-  margin-top: 0.5rem;
-}
-
-.product-controls p {
-  margin-right: 20px;
-}
-
-.product-controls button:hover {
-  background-color: #005f8b;
-}
-
-.product-price {
-  font-weight: bold;
-  font-size: 1.2rem;
+  justify-content: space-between;
+  margin-top: auto;
+  gap: 10px;
 }
 
 .quantity-input {
   width: 50px;
-  height: 30px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px;
-  margin-right: 10px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 600;
 }
 
+/* --- SHOPPING CART --- */
 .shopping-cart {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .shopping-cart h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--accent-yellow);
+  display: inline-block;
+  padding-bottom: 0.5rem;
 }
 
 .shopping-cart-table {
   width: 100%;
-  border-collapse: collapse;
-}
-
-.shopping-cart-table th,
-.shopping-cart-table td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-collapse: separate;
+  border-spacing: 0 10px;
 }
 
 .shopping-cart-table th {
-  font-weight: bold;
+  text-align: left;
+  color: var(--text-light);
+  font-weight: 600;
+  padding: 0 1rem;
 }
 
-.shopping-cart-table td img {
-  display: block;
-  margin: 0 auto;
+.shopping-cart-table td {
+  background: #f9f9f9;
+  padding: 1rem;
+}
+
+.shopping-cart-table td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.shopping-cart-table td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .checkout-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #007acc;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  background-color: var(--accent-yellow);
+  color: black;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+  padding: 1rem 3rem;
+  width: 100%;
+  max-width: 400px;
 }
 
 .checkout-button:hover {
-  background-color: #005f8b;
+  background-color: #e6b800;
+}
+
+/* --- NAVIGATION OVERRIDES (If TopNav has specific styles) --- */
+nav {
+  background-color: var(--primary-blue);
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+nav a {
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+/* --- FOOTER --- */
+footer {
+  background-color: #1d252c;
+  color: #8898aa;
+  padding: 2rem;
+  margin-top: auto;
+  font-size: 0.9rem;
 }
 </style>
